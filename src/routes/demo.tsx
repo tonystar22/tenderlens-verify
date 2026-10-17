@@ -9,7 +9,7 @@ import { Logo } from "@/components/Logo";
 type View = "overview" | "new" | "documents" | "results" | "evidence" | "graph" | "audit" | "report";
 
 export const Route = createFileRoute("/demo")({
-  validateSearch: (s: Record<string, unknown>): { view?: View } => ({ view: s.view as View | undefined }),
+  validateSearch: (s: Record<string, unknown>): { view?: View | undefined } => ({ view: s["view"] as View | undefined }),
   head: () => ({
     meta: [
       { title: "Live Demo — TenderLens AI" },
@@ -59,7 +59,7 @@ function Demo() {
   const [sample, setSample] = useState(false);
   const [stage, setStage] = useState(-1);
   const [done, setDone] = useState(!!search.view);
-  const [sel, setSel] = useState<Doc>(DOCS[3]);
+  const [sel, setSel] = useState<Doc>(DOCS[3]!);
   const [log, setLog] = useState<[string, string, string, string][]>(() => (search.view ? seedLog() : []));
   const add = (a: string, r: string, s: string) => setLog((l) => [...l, [new Date().toLocaleTimeString(), a, r, s]]);
 
@@ -111,7 +111,7 @@ function Demo() {
 
         <main className="flex-1 p-5 md:p-8">
           {view === "overview" && <Overview done={done} go={setView} />}
-          {view === "new" && <NewScreening files={files} setFiles={setFiles} sample={sample} setSample={(b) => { setSample(b); if (b) add("Sample documents loaded", "4 files", "Officer"); }} stage={stage} run={run} add={add} />}
+          {view === "new" && <NewScreening files={files} setFiles={setFiles} sample={sample} setSample={(b: boolean) => { setSample(b); if (b) add("Sample documents loaded", "4 files", "Officer"); }} stage={stage} run={run} add={add} />}
           {view === "documents" && <Documents files={files} sample={sample || done} go={setView} />}
           {(view === "results" || view === "evidence" || view === "graph" || view === "report") && !done ? <NeedRun go={setView} /> : null}
           {view === "results" && done && <Results open={openEvidence} />}
@@ -253,7 +253,7 @@ function Results({ open }: { open: (d: Doc) => void }) {
 function Evidence({ d, back, pick }: { d: Doc; back: () => void; pick: (d: Doc) => void }) {
   const isOem = d.id === "oem";
   const highlight = d.status === "Compliant" ? "bg-success/20 ring-success/40" : d.status === "Requires Review" ? "bg-warning/25 ring-warning/50" : "bg-destructive/15 ring-destructive/40 text-destructive";
-  const key = d.fields.find(([k]) => /validity|name/i.test(k))?.[1] ?? d.fields[1][1];
+  const key = d.fields.find(([k]) => /validity|name/i.test(k))?.[1] ?? d.fields[1]![1];
   return (
     <>
       <button onClick={back} className="mb-4 inline-flex items-center gap-1 text-sm text-primary"><ChevronLeft className="h-4 w-4" />Back to results</button>
@@ -266,7 +266,7 @@ function Evidence({ d, back, pick }: { d: Doc; back: () => void; pick: (d: Doc) 
             <p className="mt-4 text-center font-display text-lg font-bold text-navy">{isOem ? "Manufacturer Authorization Form" : d.name}</p>
             <div className="mt-5 space-y-2">{[95, 88, 92, 70].map((w, i) => <div key={i} className="h-2 rounded bg-muted" style={{ width: `${w}%` }} />)}</div>
             <p className="mt-5 text-sm leading-relaxed text-foreground/80">
-              {isOem ? <>We hereby authorize <b>Shree Infotech Pvt Ltd</b> to quote and supply our products for the referenced tender. This authorization is valid until{" "}</> : <>{d.fields[0][0]}: </>}
+              {isOem ? <>We hereby authorize <b>Shree Infotech Pvt Ltd</b> to quote and supply our products for the referenced tender. This authorization is valid until{" "}</> : <>{d.fields[0]![0]}: </>}
               <mark className={`rounded px-1 font-semibold ring-2 ${highlight}`}>{key}</mark>.
             </p>
             <div className="mt-5 space-y-2">{[85, 60, 78].map((w, i) => <div key={i} className="h-2 rounded bg-muted" style={{ width: `${w}%` }} />)}</div>
@@ -288,7 +288,7 @@ function Evidence({ d, back, pick }: { d: Doc; back: () => void; pick: (d: Doc) 
           <Card className="text-sm">
             <p><span className="text-muted-foreground">Rule applied: </span><b>{isOem ? "OEM authorization must be valid on the tender date." : d.id === "udyam" ? "Legal name must match across identity documents." : "Identifier must be valid and consistent with linked documents."}</b></p>
             <p className="mt-2"><span className="text-muted-foreground">Source: </span>{d.file}, Page {isOem ? 2 : 1}</p>
-            <p className="mt-2 rounded-lg bg-muted p-3 font-mono text-xs">"{isOem ? "This authorization is valid until 31 December 2024." : `${d.fields[0][0]}: ${d.fields[0][1]}`}"</p>
+            <p className="mt-2 rounded-lg bg-muted p-3 font-mono text-xs">"{isOem ? "This authorization is valid until 31 December 2024." : `${d.fields[0]![0]}: ${d.fields[0]![1]}`}"</p>
           </Card>
         </div>
       </div>
@@ -311,8 +311,8 @@ const EDGES: [string, string, "ok" | "warn", string][] = [
 ];
 
 function Graph({ open }: { open: (d: Doc) => void }) {
-  const [sel, setSel] = useState<Doc | null>(DOCS[3]);
-  const P = Object.fromEntries(NODES.map((n) => [n.id, n]));
+  const [sel, setSel] = useState<Doc | null>(DOCS[3]!);
+  const P = Object.fromEntries(NODES.map((n) => [n.id, n])) as Record<string, (typeof NODES)[number]>;
   const col = (s: Status) => (s === "Compliant" ? "fill-success" : s === "Requires Review" ? "fill-warning" : "fill-destructive");
   return (
     <>
@@ -321,7 +321,7 @@ function Graph({ open }: { open: (d: Doc) => void }) {
         <Card className="lg:col-span-2">
           <svg viewBox="0 0 600 390" className="w-full">
             {EDGES.map(([a, b, t, l]) => {
-              const A = P[a], B = P[b];
+              const A = P[a]!, B = P[b]!;
               return (
                 <g key={a + b}>
                   <line x1={A.x} y1={A.y} x2={B.x} y2={B.y} strokeWidth="3" className={t === "ok" ? "stroke-success" : "stroke-warning animate-dash"} />
