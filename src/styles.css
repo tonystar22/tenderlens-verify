@@ -51,6 +51,13 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-navy: var(--navy);
+  --color-cyan: var(--cyan);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-surface: var(--surface);
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -62,15 +69,20 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.875rem;
+  --navy: oklch(0.24 0.1 265);
+  --cyan: oklch(0.82 0.13 205);
+  --success: oklch(0.62 0.15 155);
+  --warning: oklch(0.75 0.15 70);
+  --surface: oklch(0.975 0.008 250);
   --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.24 0.08 265);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.55 0.22 263);
+  --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
@@ -142,3 +154,12 @@
     color: var(--color-foreground);
   }
 }
+
+@keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@utility animate-floaty { animation: floaty 6s ease-in-out infinite; }
+@keyframes dash { to { stroke-dashoffset: -20 } }
+@utility animate-dash { stroke-dasharray: 6 4; animation: dash 1.2s linear infinite; }
+@utility bg-hero { background: radial-gradient(60% 60% at 80% 20%, color-mix(in oklab, var(--cyan) 25%, transparent), transparent), radial-gradient(50% 50% at 10% 90%, color-mix(in oklab, var(--primary) 18%, transparent), transparent), var(--surface); }
+@media print { .no-print { display: none !important } .print-only { display: block !important } }
+.print-only { display: none }
+h1,h2,h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
