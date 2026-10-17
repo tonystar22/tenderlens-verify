@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Upload, FileText, ListChecks, Network, History, Bell, CheckCircle2, AlertTriangle,
   XCircle, Eye, Loader2, FileUp, Download, ChevronLeft, Sparkles,
 } from "lucide-react";
-import { Logo } from "./index";
+import { Logo } from "@/components/Logo";
 
 type View = "overview" | "new" | "documents" | "results" | "evidence" | "graph" | "audit" | "report";
 
